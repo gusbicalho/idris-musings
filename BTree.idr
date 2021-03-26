@@ -25,6 +25,7 @@ namespace Tree
   inOrder (Node v left right) = inOrder left ++ (v :: inOrder right)
 
 namespace SizedTree
+  public export
   data SizedTree : (n : Nat) -> Type -> Type where
     Bud : SizedTree 0 a
     Node : {m: Nat} -> {n: Nat} -> a -> SizedTree m a -> SizedTree n a -> SizedTree (1 + m + n) a
@@ -37,19 +38,21 @@ namespace SizedTree
   right : SizedTree (S k) a -> (n ** SizedTree n a)
   right (Node _ _ r) = (_ ** r)
 
+  flipEq : (x = y) -> (y = x)
+  flipEq Refl = Refl
+
+  rightSuccOverPlus : (m: Nat) -> (n:Nat) -> plus m (S n) = S (plus m n)
+  rightSuccOverPlus Z Z = Refl
+  rightSuccOverPlus Z (S n) = Refl
+  rightSuccOverPlus (S m) n = cong S (rightSuccOverPlus m n)
+
   public export
   inOrder : SizedTree n a -> Vect n a
   inOrder Bud = []
-  inOrder (Node val l r) = prove (inOrder l ++ (val :: inOrder r))
+  inOrder (Node val l r) = catParts (inOrder l) val (inOrder r)
    where
-    succOverPlus : (m: Nat) -> (n:Nat) -> plus m (S n) = S (plus m n)
-    succOverPlus Z Z = Refl
-    succOverPlus Z (S n) = Refl
-    succOverPlus (S m) n = cong S (succOverPlus m n)
-    vectSize : (m : Nat) -> (n : Nat) -> (m = n) -> Vect m a = Vect n a
-    vectSize _ _ Refl = Refl
-    prove : forall m, n. Vect (plus m (S n)) a -> Vect (S (plus m n)) a
-    prove vect = ?prf -- rewrite vectSize (plus m (S n)) (S (plus m n)) (succOverPlus m n) in vect
+    catParts : {left : Nat} -> {right : Nat} -> Vect left a -> a -> Vect right a -> Vect (S (left + right)) a
+    catParts l v r = rewrite flipEq $ rightSuccOverPlus left right in (l ++ (val :: r))
 
 namespace HTree
   public export
