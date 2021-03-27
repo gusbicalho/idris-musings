@@ -1,8 +1,9 @@
 module Main
 
 import Data.Vect
-import HList
 import BTree
+import HList
+import BrowserUtils
 
 t : Tree Int
 t = Node 4
@@ -35,6 +36,6 @@ ht =
 
 main : IO ()
 main = do
-  printLn $ inOrder t
-  printLn $ inOrder st
-  printLn $ inOrder ht
+  consoleLog $ inOrder t
+  consoleLog $ inOrder st
+  consoleLog $ inOrder ht

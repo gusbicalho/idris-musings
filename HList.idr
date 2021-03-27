@@ -22,3 +22,25 @@ hfilter pred = go
       if pred t x
       then ((t :: us) ** (x :: ys))
       else (us ** ys)
+
+intercalate : Semigroup a => a -> List a -> List a
+intercalate sep = go
+ where
+  go : List a -> List a
+  go [] = []
+  go [a] = [a]
+  go (a :: as) = a :: sep :: go as
+
+public export
+all : (Type -> Type) -> List Type -> Type
+all constraint = foldr (\t, acc => (constraint t, acc)) ()
+
+export
+(all Show ts) => Show (HList ts) where
+  show = brackets . concat . intercalate ", " . go
+   where
+    brackets : String -> String
+    brackets s = "[" <+> s <+> "]"
+    go : all Show as => HList as -> List String
+    go [] = []
+    go (a :: as) = show a :: go as
